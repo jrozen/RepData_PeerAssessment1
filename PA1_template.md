@@ -1,38 +1,48 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 The data will be processed using the plyr library. Make sure the file activity.csv is located in your working directory
 
-```{r}
+
+```r
 library("plyr")
 data <- read.csv("activity.csv", colClasses = c("numeric", "Date", "numeric"))
 ```
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 t <- ddply(data, .(date), summarise, total=sum(steps, na.rm=T))
 mean(t$total)
 ```
 
+```
+## [1] 9354.23
+```
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 ap <- ddply(data, .(interval), summarise, average=mean(steps, na.rm=T))
 plot(ap,  type="l", main="Activity pattern")
 ```
 
+![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
 ## Imputing missing values
 Checking na values shows that there are alot of missing values.
-```{r}
+
+```r
 nrow(data[is.na(data$steps),])
 ```
+
+```
+## [1] 2304
+```
 A strategy for minimizing the impact of na's used is to take the median value.
-```{r}
+
+```r
 data2 <- ddply(data, 
       .(interval), 
       transform, 
@@ -40,7 +50,8 @@ data2 <- ddply(data,
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 ## add a column containing true if its a weekend day otherwise false. Note! Swedish locale
 data2$weekend <- weekdays(data2$date) %in% c("Lördag", "Söndag")
 ## calculate means
@@ -51,6 +62,6 @@ plot(r1$interval, r1$average, type="l", col="red", xlab="Interval", ylab="Averag
 lines(r2$interval, r2$average, col="blue")
 ```
 
-```{r}
+![](./PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
 
-```
+
