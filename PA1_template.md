@@ -8,17 +8,29 @@ The data will be processed using the plyr library. Make sure the file activity.c
 ```r
 library("plyr")
 data <- read.csv("activity.csv", colClasses = c("numeric", "Date", "numeric"))
+
+steps <- ddply(data, .(date), summarise, total=sum(steps, na.rm=T))
+plot(steps, type="h", main="Total number of steps per day")
 ```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-1-1.png) 
 
 ## What is mean total number of steps taken per day?
 
 ```r
-t <- ddply(data, .(date), summarise, total=sum(steps, na.rm=T))
-mean(t$total)
+mean(steps$total)
 ```
 
 ```
 ## [1] 9354.23
+```
+
+```r
+median(steps$total)
+```
+
+```
+## [1] 10395
 ```
 
 ## What is the average daily activity pattern?
@@ -29,6 +41,17 @@ plot(ap,  type="l", main="Activity pattern")
 ```
 
 ![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+The interval with the highest average is
+
+```r
+maxAverageSteps<-max(ap$average)
+ap[ap$average==maxAverageSteps,]
+```
+
+```
+##     interval  average
+## 104      835 206.1698
+```
 
 ## Imputing missing values
 Checking na values shows that there are alot of missing values.
@@ -47,7 +70,13 @@ data2 <- ddply(data,
       .(interval), 
       transform, 
       steps=ifelse(is.na(steps), median(steps, na.rm=TRUE), steps))
+
+## plot a new histrogram
+steps2 <- ddply(data2, .(date), summarise, total=sum(steps))
+plot(steps2, type="h", main="Total number of steps per day")
 ```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -62,6 +91,4 @@ plot(r1$interval, r1$average, type="l", col="red", xlab="Interval", ylab="Averag
 lines(r2$interval, r2$average, col="blue")
 ```
 
-![](./PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
-
-
+![](./PA1_template_files/figure-html/unnamed-chunk-7-1.png) 

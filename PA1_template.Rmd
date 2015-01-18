@@ -12,18 +12,26 @@ The data will be processed using the plyr library. Make sure the file activity.c
 ```{r}
 library("plyr")
 data <- read.csv("activity.csv", colClasses = c("numeric", "Date", "numeric"))
+
+steps <- ddply(data, .(date), summarise, total=sum(steps, na.rm=T))
+plot(steps, type="h", main="Total number of steps per day")
 ```
 
 ## What is mean total number of steps taken per day?
 ```{r}
-t <- ddply(data, .(date), summarise, total=sum(steps, na.rm=T))
-mean(t$total)
+mean(steps$total)
+median(steps$total)
 ```
 
 ## What is the average daily activity pattern?
 ```{r}
 ap <- ddply(data, .(interval), summarise, average=mean(steps, na.rm=T))
 plot(ap,  type="l", main="Activity pattern")
+```
+The interval with the highest average is
+```{r}
+maxAverageSteps<-max(ap$average)
+ap[ap$average==maxAverageSteps,]
 ```
 
 ## Imputing missing values
@@ -37,6 +45,10 @@ data2 <- ddply(data,
       .(interval), 
       transform, 
       steps=ifelse(is.na(steps), median(steps, na.rm=TRUE), steps))
+
+## plot a new histrogram
+steps2 <- ddply(data2, .(date), summarise, total=sum(steps))
+plot(steps2, type="h", main="Total number of steps per day")
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -49,8 +61,4 @@ r2 <- ddply(data2[!data2$weekend,], .(interval), summarise, average=mean(steps))
 ## plot lines
 plot(r1$interval, r1$average, type="l", col="red", xlab="Interval", ylab="Average", ylim=c(0,200))
 lines(r2$interval, r2$average, col="blue")
-```
-
-```{r}
-
 ```
